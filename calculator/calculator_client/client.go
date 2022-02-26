@@ -39,7 +39,7 @@ func minus(cc *grpc.ClientConn) {
 	c := calculatorpb.NewCalculatorServiceClient(cc)
 	resp, err := c.Minus(context.Background(), &calculatorpb.CalRequest{
 		FirstNumber:  10,
-		SecondNumber: 2,
+		SecondNumber: 5,
 	})
 
 	if err != nil {
