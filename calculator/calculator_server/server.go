@@ -26,16 +26,23 @@ func main() {
 
 type server struct{}
 
-func (*server) Sum(ctx context.Context, req *calculatorpb.SumRequest) (*calculatorpb.SumResponse, error) {
-	fmt.Printf("req: %v", req)
-	return &calculatorpb.SumResponse{
-		SumResult: req.FirstNumber + req.SecondNumber,
+func (*server) Sum(ctx context.Context, req *calculatorpb.CalRequest) (*calculatorpb.CalResponse, error) {
+	fmt.Printf("req: %v\n", req)
+	return &calculatorpb.CalResponse{
+		Result: req.FirstNumber + req.SecondNumber,
 	}, nil
 }
 
-func (*server) Minus(ctx context.Context, req *calculatorpb.MinusReqeust) (*calculatorpb.MinusResponse, error) {
-	fmt.Printf("req: %v", req)
-	return &calculatorpb.MinusResponse{
-		SumResult: req.FirstNumber - req.SecondNumber,
+func (*server) Minus(ctx context.Context, req *calculatorpb.CalRequest) (*calculatorpb.CalResponse, error) {
+	fmt.Printf("req: %v\n", req)
+	return &calculatorpb.CalResponse{
+		Result: req.FirstNumber - req.SecondNumber,
+	}, nil
+}
+
+func (*server) Multiply(ctx context.Context, req *calculatorpb.CalRequest) (*calculatorpb.CalResponse, error) {
+	fmt.Printf("req: %v\n", req)
+	return &calculatorpb.CalResponse{
+		Result: req.FirstNumber * req.SecondNumber,
 	}, nil
 }
