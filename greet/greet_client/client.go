@@ -23,7 +23,9 @@ func main() {
 
 	//doServerStreaming(c)
 
-	doClientStreaming(c)
+	//doClientStreaming(c)
+
+	doBiDirectional(c)
 }
 
 func doUnary(c greetpb.GreetServiceClient) {
@@ -93,5 +95,54 @@ func doClientStreaming(c greetpb.GreetServiceClient) {
 		log.Fatalf("err while close and recv: %v", err)
 	}
 	fmt.Printf("Response from LongGreeting: %v", resp)
+}
 
+func doBiDirectional(c greetpb.GreetServiceClient) {
+	fmt.Println("Starting to do a client streaming RPC...")
+	firstname := []string{"kritchat", "any", "anyname", "john"}
+	stream, err := c.GreetEveryone(context.Background())
+	if err != nil {
+		log.Fatalf("err while init stream: %v", err)
+		return
+	}
+
+	wait := make(chan struct{})
+	//send data to server
+	go func() {
+		for _, val := range firstname {
+			fmt.Printf("sending message %v\n", val)
+			err = stream.Send(&greetpb.GreetEveryoneRequest{
+				Greeting: &greetpb.Greeting{
+					FirstName: val,
+				},
+			})
+			if err != nil {
+				log.Fatalf("err while send data to Server: %v", err)
+				return
+			}
+			time.Sleep(time.Duration(2) * time.Second)
+		}
+		err = stream.CloseSend()
+		if err != nil {
+			log.Fatalf("err while Close send: %v", err)
+			return
+		}
+	}()
+
+	//consume data from server
+	go func() {
+		for {
+			resp, err := stream.Recv()
+			if err == io.EOF {
+				close(wait) //close the channel
+				return
+			}
+			if err != nil {
+				log.Fatalf("err while recv: %v", err)
+				return
+			}
+			fmt.Printf("<--- %v\n", resp.GetResult())
+		}
+	}()
+	<-wait
 }
